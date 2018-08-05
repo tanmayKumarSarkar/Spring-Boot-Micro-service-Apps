@@ -10,7 +10,7 @@ export class EmployeeServiceService {
   employees;
   isEditEmp: Boolean = false;
   editEmpDetails;
-  localhost: String = "http://localhost:8060/api";
+  localhost: String = "/api"; //"http://localhost:8060/api";
 
   valueChange: EventEmitter<String> = new EventEmitter<String>();
 
