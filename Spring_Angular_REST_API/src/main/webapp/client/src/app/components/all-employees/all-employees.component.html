@@ -1,0 +1,26 @@
+<h3> All Employees</h3>
+
+<div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Employee ID</th>
+        <th>Name</th>
+        <th>Depertment</th>
+        <th>Salary</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let employee of employees">
+        <td>{{employee.id}}</td>
+        <td>{{employee.name}}</td>
+        <td>{{employee.depertment}}</td>
+        <td>{{employee.salary}}</td>
+        <td (click)="editEpmloyeeForm(employee)" style="cursor: pointer;"> Edit </td>
+        <td (click)="deleteEpmloyee(employee)" style="cursor: pointer;"> Delete </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

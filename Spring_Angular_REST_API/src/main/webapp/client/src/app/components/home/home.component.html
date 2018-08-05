@@ -1,0 +1,7 @@
+<div class="container">
+  <div class="row">
+    <app-all-employees class="col-6"></app-all-employees>
+    <app-add-employee *ngIf="!isEditEmp" class="col-4"></app-add-employee>
+    <app-update-employee *ngIf="isEditEmp" class="col-4"></app-update-employee>
+  </div>
+</div>

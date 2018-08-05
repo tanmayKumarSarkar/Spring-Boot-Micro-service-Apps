@@ -1,0 +1,50 @@
+<div class="container">
+  <form class="form-horizontal" role="form" (submit)="onEmpSubmit()">
+    <div class="row">
+      <div class="col">
+        <h3 class="panel-title">Add Employee</h3>
+        <hr>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <div class="form-group has-danger">
+          <label class="sr-only" for="name">Name</label>
+          <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+            <input type="text" name="name" class="form-control" id="name" placeholder="Name" required autofocus [(ngModel)]="name">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <div class="form-group">
+          <label class="sr-only" for="dept">Depertment</label>
+          <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+            <input type="text" name="dept" class="form-control" id="dept" placeholder="Depertment" required [(ngModel)]="dept">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <div class="form-group has-danger">
+          <label class="sr-only" for="salary">Salary</label>
+          <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+            <input type="number" name="salary" class="form-control" id="salary" placeholder="Salary" required autofocus [(ngModel)]="salary">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" style="padding-top: 1rem">
+      <div class="col">
+        <button type="submit" [disabled]="!name || !dept || !salary" class="btn btn-success btn-block">
+          Add New</button>
+      </div>
+    </div>
+  </form>
+</div>
