@@ -3,6 +3,7 @@ package com.security.oauth.service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,6 +12,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.stereotype.Service;
 
 import com.security.oauth.entity.Permission;
@@ -23,6 +26,9 @@ public class UserService implements UserDetailsService {
 
 	@Autowired
 	private UserRepository userRepo;
+	
+	@Autowired
+    private AuthorizationServerTokenServices tokenServices;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -63,7 +69,7 @@ public class UserService implements UserDetailsService {
 		User user = userRepo.findByUserSOEId(userName);
 		Set<GrantedAuthority> auths = new HashSet<>();
 		for(Permission permission: user.getPermissions()) {
-			auths.add(new SimpleGrantedAuthority("ROLE_"+
+			auths.add(new SimpleGrantedAuthority(
 				permission.getProject().getProjectName().toUpperCase() + "_" +
 				permission.getAppModule().getAppModuleName().toUpperCase() + "_" + 
 				permission.getAccessLevel().getAccessName().toUpperCase())
@@ -72,19 +78,45 @@ public class UserService implements UserDetailsService {
 		return auths;
 	}
 
-	@PreAuthorize("hasRole('PROJECT_VIEW')")
-	public List<User> findAll() {
+	@PreAuthorize("hasAnyRole('USER_VIEW', 'USER_ADMIN')")
+	public List<User> findAll(OAuth2Authentication auth) {
 		//List<User> list = new ArrayList<>();
 		//userRepo.findAll().iterator().forEachRemaining(list::add);
 		return userRepo.findAll();
 	}
+	
+	@PreAuthorize("hasAnyRole('USER_VIEW')")
+	public Set<User> findAllFiltered(OAuth2Authentication auth) {
+		Set<String> projects = getProjectPermissionsByRole(auth, Set.of("USER_VIEW"));
+		if(projects.contains("ALL")) {
+			return Set.copyOf(userRepo.findAll());
+		}
+		else return userRepo.findByProjectsProjectNameIn(projects);
+	}
+	
+	@PreAuthorize("hasAnyRole('USER_EDIT')")
+	public User findUserByUserName(String userSOEId, OAuth2Authentication auth) {
+		return userRepo.findByUserSOEId(userSOEId);
+	}
 
-	public void delete(long id) {
+	public void delete(long id, OAuth2Authentication auth) {
 		userRepo.deleteById(id);
 	}
 
-	public User save(User user) {
+	public User save(User user, OAuth2Authentication auth) {
         return userRepo.save(user);
     }
 
+	public User update(Long id, User user, OAuth2Authentication auth) {
+		return userRepo.save(user);
+	}
+
+	@SuppressWarnings("unchecked")
+	public Set<String> getProjectPermissionsByRole(OAuth2Authentication auth, Set<String> roles){
+		 Set<String> permissions = (Set<String>) tokenServices.getAccessToken(auth).getAdditionalInformation().get("permissions");
+		 Set<String> projects = roles.stream()
+                 .filter(permissions::contains)
+                 .collect(Collectors.toSet());
+		 return projects;
+	}
 }
